@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<BorlandProject>
+	<Transactions>
+    <Transaction>1899-12-30 00:00:00.000.873,\\STORAGESRV\Users\arepin\Embarcadero\Studio\Projects\Unit1.pas=E:\delphi\azurehwmon\Unit1.pas</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.861,\\STORAGESRV\Users\arepin\Embarcadero\Studio\Projects\Project1.dproj=E:\delphi\azurehwmon\Project1.dproj</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.522,=\\STORAGESRV\Users\arepin\Embarcadero\Studio\Projects\Unit1.pas</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.101,E:\delphi\azurehwmon\Project1.dproj=E:\delphi\azurehwmon\azurehwmonsrv.dproj</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.873,\\STORAGESRV\Users\arepin\Embarcadero\Studio\Projects\Unit1.dfm=E:\delphi\azurehwmon\Unit1.dfm</Transaction>
+    <Transaction>2017-06-12 21:58:58.030,C:\Users\Administrator\Desktop\azurehwmon\hwmontomysql.dproj=C:\Users\Administrator\Desktop\azurehwmon\azurehwmonsrv.dproj</Transaction>
+  </Transactions>
+	<ProjectSortOrder AutoSort="0" SortType="0">
+    <File Path="Unit1.pas"/>
+    <File Path="Unit1.dfm"/>
+  </ProjectSortOrder>
+</BorlandProject>

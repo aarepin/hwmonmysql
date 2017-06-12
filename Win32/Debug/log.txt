@@ -1,0 +1,4 @@
+12/06/17 20:20:08 Старт сервиса, текущая папка C:\Users\Administrator\Desktop\azurehwmon\Win32\Debug\
+12/06/17 20:24:11 Ошибка открытия файлаInvalid argument to date encode
+12/06/17 20:24:11 Ошибка при чтении файла I/O error 104
+12/06/17 20:24:11 while not term: I/O error 103
