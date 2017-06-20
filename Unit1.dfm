@@ -1,6 +1,6 @@
-object azurehwmon: Tazurehwmon
+object hwmontomysql: Thwmontomysql
   OldCreateOrder = False
-  DisplayName = 'hwmontomysql'
+  DisplayName = 'hwmonmysql'
   OnExecute = ServiceExecute
   Height = 459
   Width = 568
@@ -22,5 +22,12 @@ object azurehwmon: Tazurehwmon
       'ConnectTimeout=60')
     Left = 240
     Top = 40
+  end
+  object IdIPWatch1: TIdIPWatch
+    Active = True
+    HistoryFilename = 'iphist.dat'
+    WatchInterval = 100000
+    Left = 272
+    Top = 200
   end
 end

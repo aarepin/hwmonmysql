@@ -14,11 +14,12 @@ uses
   System.Classes,
   shfolder, IdBaseComponent, IdComponent, IdIPWatch, Data.Win.ADODB,
   activex,
-  nb30;
+  nb30, IdIPAddrMon;
 
 type
-  Tazurehwmon = class(TService)
+  Thwmontomysql = class(TService)
     SQLC: TSQLConnection;
+    IdIPWatch1: TIdIPWatch;
 
   procedure ServiceExecute(Sender: TService);
 
@@ -30,10 +31,10 @@ type
   end;
 
 var
-  azurehwmon: Tazurehwmon;
+  hwmontomysql: Thwmontomysql;
     CPUTotal,CPUPackage,Memory,UsMem,AvailMem,Usspace,checkmy:integer;
   xdate,pmssql,ip,mac,path,logfile:string;
-  mbtemp,cpuload,cputemp,cpuwt,fan1,fan2,memload,memus,memavail,hddspace,hddtemp:string;
+  mbtemp,cpuload,cputemp,cpuwt,fan1,fan2,memload,memus,memavail,hddspace,hddtemp,hddwrite,hddread:string;
   fL : TStringList;
   procedure log(aStr: string);
   procedure tosql;
@@ -44,23 +45,24 @@ var
   function  wrd(var s:string;j:integer):string;
   function GetFileDate(FileName: string): string;
   procedure runohmreport;
+  function CompName: string;
 implementation
 
 {$R *.dfm}
 
 procedure ServiceController(CtrlCode: DWord); stdcall;
 begin
-  azurehwmon.Controller(CtrlCode);
+  hwmontomysql.Controller(CtrlCode);
 end;
 
-function Tazurehwmon.GetServiceController: TServiceController;
+function Thwmontomysql.GetServiceController: TServiceController;
 begin
   Result := ServiceController;
 end;
 
 
 
-procedure Tazurehwmon.ServiceExecute(Sender: TService);
+procedure Thwmontomysql.ServiceExecute(Sender: TService);
 const
   SecBetweenRuns = 5;
 var
@@ -70,10 +72,11 @@ begin
   chdir(pchar(path));
   clearlog;
   log('Старт сервиса, текущая папка '+path);
+//  log('Имя ПК: '+Compname);
   loadparam;
   checkmy:=1;
   try
-    azurehwmon.SQLC.Connected:=true;
+    hwmontomysql.SQLC.Connected:=true;
   except on E: exception do
     begin
       log('Error connect to MySQL:'+e.Message);
@@ -113,11 +116,11 @@ procedure loadparam;
 begin
   {for MS-SQL connection}
   try
-      azurehwmon.SQLC.Params.LoadFromFile(path+'parammysql.ini');
+      hwmontomysql.SQLC.Params.LoadFromFile(path+'parammysql.ini');
      except on E: exception do
          begin
              log('Error open parammysql.ini:'+e.Message);
-             azurehwmon.DoStop;
+             hwmontomysql.DoStop;
          end;
   end;
 end;
@@ -127,7 +130,7 @@ begin
    try
      CoInitialize(nil);
       try
-        azurehwmon.SQLC.ExecuteDirect('INSERT INTO repin.ohmrep'+
+        hwmontomysql.SQLC.ExecuteDirect('INSERT INTO repin.ohmrep'+
         '(datet'+
         ',mac'+
         ',mbtemp'+
@@ -140,12 +143,32 @@ begin
         ',memus'+
         ',memavail'+
         ',hddspace'+
-        ',hddtemp)'+
-        ' VALUES('+#39+xdate+#39+','+#39+ mac +#39+','+#39+ mbtemp +#39+','+#39+cpuload+#39+','+#39+cputemp+#39+','+#39+cpuwt+#39+','+#39+fan1+#39+','+#39+fan2+#39+','+#39+memload+#39+','+#39+memus+#39+','+#39+memavail+#39+','+#39+hddspace+#39+','+#39+hddtemp+#39+')');
+        ',hddtemp'+
+        ',hddwrite'+
+        ',hddread'+
+        ',namepc'+
+        ',ip)'+
+        ' VALUES('+#39+xdate+#39+
+               ','+#39+ mac +#39+
+               ','+#39+ mbtemp +#39+
+               ','+#39+cpuload+#39+
+               ','+#39+cputemp+#39+
+               ','+#39+cpuwt+#39+
+               ','+#39+fan1+#39+
+               ','+#39+fan2+#39+
+               ','+#39+memload+#39+
+               ','+#39+memus+#39+
+               ','+#39+memavail+#39+
+               ','+#39+hddspace+#39+
+               ','+#39+hddtemp+#39+
+               ','+#39+hddwrite+#39+
+               ','+#39+hddread+#39+
+               ','+#39+CompName+#39+
+               ','+#39+hwmontomysql.idipwatch1.CurrentIP+#39+')');
 //        mbtemp,cpuload,cputemp,cpuwt,fan1,fan2,memload,memus,memavail,hddspace,hddtemp
         except on E: exception do
         begin
-          log('Insert into ohm: '+e.Message);
+          log('Insert into ohmrep: '+e.Message);
         end;
       end;
       finally  CoUninitialize;
@@ -180,6 +203,8 @@ begin
   memavail:='-1';
   hddspace:='-1';
   hddtemp:='-1';
+  hddwrite:='-1';
+  hddread:='-1';
   str1:='';
  try
   while not EOF(f) do
@@ -219,6 +244,13 @@ begin
 
        if (pos('Temperature',str)<>0)and(pos('/hdd/0/temperature',str)<>0)and(pos(':',str)<>0) and(pos('/',wrd(str,7))=0)
         then hddtemp:=wrd(str1,2);
+
+       if (pos('Host Writes',str)<>0)and(pos('/hdd/0/data',str)<>0)and(pos(':',str)<>0) and(pos('/',wrd(str,8))=0)
+        then hddwrite:=wrd(str1,2);
+
+       if (pos('Host Reads',str)<>0)and(pos('/hdd/0/data',str)<>0)and(pos(':',str)<>0) and(pos('/',wrd(str,6))=0)
+        then hddread:=wrd(str1,2);
+
     end;
  except on e:Exception do log('Ошибка при чтении файла '+ e.Message);
 
@@ -358,5 +390,15 @@ begin
   ShellExecute(0, nil, Pchar('taskkill'),Pchar(param),'',SW_HIDE);
 end;
 
+function CompName: string; //получаем имя компьютера
+var
+  L : LongWord;
+begin
+  L := MAX_COMPUTERNAME_LENGTH + 2;
+  SetLength(Result, L);
+  if GetComputerName(PChar(Result), L) and (L > 0) then
+    SetLength(Result, StrLen(PChar(Result))) else
+    Result := '';
+end;
 
 end.

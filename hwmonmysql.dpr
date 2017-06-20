@@ -2,7 +2,7 @@ program hwmonmysql;
 
 uses
   Vcl.SvcMgr,
-  Unit1 in 'Unit1.pas' {azurehwmon: TService};
+  Unit1 in 'Unit1.pas' {hwmontomysql: TService};
 
 {$R *.RES}
 
@@ -23,6 +23,6 @@ begin
   //
   if not Application.DelayInitialize or Application.Installing then
     Application.Initialize;
-  Application.CreateForm(Tazurehwmon, azurehwmon);
+  Application.CreateForm(Thwmontomysql, hwmontomysql);
   Application.Run;
 end.
